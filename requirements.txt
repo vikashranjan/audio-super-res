@@ -1,5 +1,5 @@
 tensorflow-gpu==1.15
-keras
+keras==1.2.2
 tqdm
 numpy==1.16.4
 scipy==1.2.1

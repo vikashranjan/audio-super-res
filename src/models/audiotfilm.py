@@ -65,7 +65,6 @@ class AudioTfilm(Model):
       def _apply_normalizer(x_in, x_norm, n_filters, n_block):
         x_shape = tf.shape(x_in)
         n_steps = x_shape[1] / n_block # will be 32 at training
-
         # reshape input into blocks
         x_in = tf.reshape(x_in, shape=(-1, n_steps, n_block, n_filters))
         x_norm = tf.reshape(x_norm, shape=(-1, n_steps, 1, n_filters))
@@ -89,7 +88,7 @@ class AudioTfilm(Model):
           x = LeakyReLU(0.2)(x)
 
           # create and apply the normalizer
-          nb = 128 / (2**l)
+          nb = int(128 / (2**l))
         
           params_before = np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]) 
           x_norm = _make_normalizer(x, nf, nb)
@@ -110,7 +109,7 @@ class AudioTfilm(Model):
           x = LeakyReLU(0.2)(x)
 
           # create and apply the normalizer
-          nb = 128 / (2**L)
+          nb = int(128 / (2**L))
           x_norm = _make_normalizer(x, n_filters[-1], nb)
           x = _apply_normalizer(x, x_norm, n_filters[-1], nb)
 
