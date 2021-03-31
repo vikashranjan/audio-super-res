@@ -3,11 +3,11 @@ import time
 
 import numpy as np
 import tensorflow as tf
-import cPickle
+import pickle
 
 import librosa
 from keras import backend as K
-from dataset import DataSet
+from .dataset import DataSet
 from keras.layers import Input, LSTM, Dense
 from keras.models import Model
 from tqdm import tqdm
@@ -47,7 +47,7 @@ class Model2(object):
   def create_train_op(self, X, Y, alpha):
     # load params
     opt_params = self.opt_params
-    print 'creating train_op with params:', opt_params
+    print('creating train_op with params:', opt_params)
 
     # create loss
     self.loss = self.create_objective(X, Y, opt_params)
@@ -97,7 +97,7 @@ class Model2(object):
 
   def create_gradients(self, loss, params):
     gv = self.optimizer.compute_gradients(loss, params)
-    g, v = zip(*gv)
+    g, v = list(zip(*gv))
     return g
 
   def create_updates(self, params, grads, alpha, opt_params):
@@ -108,7 +108,7 @@ class Model2(object):
     grads = [alpha*g for g in grads]
     
     # use the optimizer to apply the gradients that minimize the loss
-    gv = zip(grads, params)
+    gv = list(zip(grads, params))
     train_op = self.optimizer.apply_gradients(gv, global_step=self.global_step)
     
     return train_op
@@ -149,7 +149,7 @@ class Model2(object):
     opt = optimizers.Adam(lr=1e-6)
     model.compile(loss=create_objective, optimizer=opt)
 
-    print(model.summary())
+    print((model.summary()))
 
     model.fit([X, Y_input], Y_target, batch_size = self.opt_params['batch_size'], epochs = 10, validation_split=val_ratio)
 
@@ -169,7 +169,7 @@ class Model2(object):
 
         target_seq = np.zeros((input_seq.shape[0], patch_size+1, 1))
         decoded_seq = np.zeros((input_seq.shape[0], patch_size,1))
-        for i in tqdm(range(patch_size)):
+        for i in tqdm(list(range(patch_size))):
             output, h, c = decoder_model.predict([target_seq]+states_value)
                         
             output = np.reshape(output, (input_seq.shape[0], output.shape[1]))
@@ -184,7 +184,7 @@ class Model2(object):
     snrs = []
     batch_size = 256
     preds = []
-    for i in tqdm(range(X_val.shape[0] / batch_size)):
+    for i in tqdm(list(range(X_val.shape[0] / batch_size))):
         input_seq = X_val[i*batch_size:(i+1)*batch_size,:dim]
         decoded_seq = decode_sequence(input_seq)
         preds.append(decoded_seq)
@@ -193,19 +193,19 @@ class Model2(object):
             snrs.append(snr)
         
     avg_snr = np.mean(snr)
-    print("avg_snr: " + str(avg_snr))
+    print(("avg_snr: " + str(avg_snr)))
 
     preds = np.array(preds)
    
-    print(Y_val.shape)
+    print((Y_val.shape))
     Y_val = np.reshape(Y_val, (Y_val.shape[0], Y_val.shape[1]))[:preds.shape[1], :preds.shape[2]]
     preds = np.reshape(preds, (preds.shape[1], preds.shape[2]))
     Y_val = Y_val.flatten()
     preds = preds.flatten()
-    print(Y_val.shape)
-    print(preds.shape)
+    print((Y_val.shape))
+    print((preds.shape))
     lsd = self.compute_log_distortion(Y_val, preds)
-    print("avg lsd: " + str(lsd))
+    print(("avg lsd: " + str(lsd)))
         
 # ----------------------------------------------------------------------------
 # helpers

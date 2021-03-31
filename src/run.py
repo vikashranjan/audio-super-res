@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 
 import argparse
 import numpy as np
-import cPickle
+import pickle as cPickle
 
 import models
 from models.model import default_opt
@@ -129,13 +129,13 @@ def eval(args):
     with open(args.wav_file_list) as f:
       for line in f:
         try:
-          print(line.strip())
+          print((line.strip()))
           if(args.speaker == 'single'):
             upsample_wav('../data/vctk/VCTK-Corpus/wav48/p225/'+line.strip(), args, model)
           else:
             upsample_wav('../data/vctk/VCTK-Corpus/'+line.strip(), args, model)
         except EOFError:
-          print 'WARNING: Error reading file:', line.strip()
+          print(('WARNING: Error reading file:', line.strip()))
 
 def get_model(args, n_dim, r, from_ckpt=False, train=True, grocery='false'):
   """Create a model based on arguments"""  
@@ -145,7 +145,7 @@ def get_model(args, n_dim, r, from_ckpt=False, train=True, grocery='false'):
   else: 
     opt_params = default_opt
 
-  print(args.model)
+  print((args.model))
   # create model
   if args.model == 'audiounet':
     model = models.AudioUNet(from_ckpt=from_ckpt, n_dim=n_dim, r=r,

@@ -2,9 +2,9 @@ import numpy as np
 import tensorflow as tf
 
 from scipy import interpolate
-from model import Model, default_opt
+from .model import Model, default_opt
 
-from layers.subpixel import SubPixel1D, SubPixel1D_v2
+from .layers.subpixel import SubPixel1D, SubPixel1D_v2
 
 from keras import backend as K
 from keras.layers import merge, MaxPooling1D, MaxPooling2D, AveragePooling1D
@@ -41,7 +41,7 @@ class AudioTfilm(Model):
       n_filtersizes = [65, 33, 17,  9,  9,  9,  9, 9, 9]
       downsampling_l = []
 
-      print 'building model...'
+      print('building model...')
 
       def _make_normalizer(x_in, n_filters, n_block):
         """applies an lstm layer on top of x_in"""        
@@ -80,7 +80,7 @@ class AudioTfilm(Model):
 
 
       # downsampling layers
-      for l, nf, fs in zip(range(L), n_filters, n_filtersizes):
+      for l, nf, fs in zip(list(range(L)), n_filters, n_filtersizes):
         with tf.name_scope('downsc_conv%d' % l):
           x = (AtrousConvolution1D(nb_filter=nf, filter_length=fs, atrous_rate = DRATE,
                   activation=None, border_mode='same', init=orthogonal_init,
@@ -97,7 +97,7 @@ class AudioTfilm(Model):
        
           x = _apply_normalizer(x, x_norm, nf, nb)
 
-          print 'D-Block: ', x.get_shape()
+          print('D-Block: ', x.get_shape())
           downsampling_l.append(x)
 
       # bottleneck layer
@@ -115,7 +115,7 @@ class AudioTfilm(Model):
           x = _apply_normalizer(x, x_norm, n_filters[-1], nb)
 
       # upsampling layers
-      for l, nf, fs, l_in in reversed(zip(range(L), n_filters, n_filtersizes, downsampling_l)):
+      for l, nf, fs, l_in in reversed(list(zip(list(range(L)), n_filters, n_filtersizes, downsampling_l))):
         with tf.name_scope('upsc_conv%d' % l):
           # (-1, n/2, 2f)
           x = (AtrousConvolution1D(nb_filter=2*nf, filter_length=fs, atrous_rate = DRATE,
@@ -131,7 +131,7 @@ class AudioTfilm(Model):
           x = _apply_normalizer(x, x_norm, nf, nb)
           # (-1, n, 2f)
           x = merge([x, l_in], mode='concat', concat_axis=-1) 
-          print 'U-Block: ', x.get_shape()
+          print('U-Block: ', x.get_shape())
       
       # final conv layer
       with tf.name_scope('lastconv'):

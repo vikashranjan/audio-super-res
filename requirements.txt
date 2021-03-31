@@ -1,0 +1,9 @@
+tensorflow-gpu==1.15
+keras
+tqdm
+numpy==1.16.4
+scipy==1.2.1
+librosa==0.4.3
+h5py==2.9.0
+matplotlib
+

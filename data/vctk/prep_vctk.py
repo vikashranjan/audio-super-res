@@ -5,7 +5,7 @@ Create an HDF5 file of patches for training super-resolution model.
 import os, argparse
 import numpy as np
 import h5py
-import cPickle
+import pickle
 
 import librosa
 from scipy import interpolate
@@ -74,7 +74,7 @@ def add_data(h5_file, inputfiles, args, save_examples=False):
   num_files = len(file_list)
 
   # patches to extract and their size
-  if args.dimension is not -1:
+  if args.dimension != -1:
     if args.interpolate:
         d, d_lr = args.dimension, args.dimension
         s, s_lr = args.stride, args.stride
@@ -83,9 +83,9 @@ def add_data(h5_file, inputfiles, args, save_examples=False):
         s, s_lr = args.stride, args.stride / args.scale
   hr_patches, lr_patches = list(), list()
 
-  print(len(file_list))
+  print((len(file_list)))
   for j, file_path in enumerate(file_list):
-    if j % 10 == 0: print '%d/%d' % (j, num_files)
+    if j % 10 == 0: print('%d/%d' % (j, num_files))
 
     ID = int(re.search('p\d\d\d/', file_path).group(0)[1:-1])
     
@@ -110,7 +110,7 @@ def add_data(h5_file, inputfiles, args, save_examples=False):
       assert len(x) % args.scale == 0
       assert len(x_lr) == len(x) / args.scale
 
-    if args.dimension is not -1:
+    if args.dimension != -1:
         # generate patches
         max_i = len(x) - d + 1
         for i in range(0, max_i, s):
@@ -140,7 +140,7 @@ def add_data(h5_file, inputfiles, args, save_examples=False):
         lr_patches.append(x_lr[:len(x_lr) //256 * 256])
         ID_list.append(ID)
 
-  if args.dimension is not -1:
+  if args.dimension != -1:
     # crop # of patches so that it's a multiple of mini-batch size
     num_patches = len(hr_patches)
     num_to_keep = int(np.floor(num_patches / args.batch_size) * args.batch_size)
@@ -152,20 +152,20 @@ def add_data(h5_file, inputfiles, args, save_examples=False):
     librosa.output.write_wav('example-lr.wav', lr_patches[40][0], fs / args.scale, norm=False)
    
 
-  if args.dimension is not -1:
+  if args.dimension != -1:
     # create the hdf5 file
     data_set = h5_file.create_dataset('data', lr_patches.shape, np.float32)
     label_set = h5_file.create_dataset('label', hr_patches.shape, np.float32)
 
     data_set[...] = lr_patches
     label_set[...] = hr_patches
-    print(len(ID_list))
-    cPickle.dump(ID_list, open('ID_list_patches_'+str(d)+'_'+str(args.scale), 'w'))
+    print((len(ID_list)))
+    pickle.dump(ID_list, open('ID_list_patches_'+str(d)+'_'+str(args.scale), 'wb'))
   else:
     # pickle the data
-    cPickle.dump(hr_patches, open('full-label-'+args.out[:-7],'w'))
-    cPickle.dump(lr_patches, open('full-data-'+args.out[:-7],'w'))
-    cPickle.dump(ID_list, open('ID_list','w'))
+    pickle.dump(hr_patches, open('full-label-'+args.out[:-7],'wb'))
+    pickle.dump(lr_patches, open('full-data-'+args.out[:-7],'wb'))
+    pickle.dump(ID_list, open('ID_list','wb'))
 
 
 

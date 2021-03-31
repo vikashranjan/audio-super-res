@@ -12,9 +12,9 @@ def SubPixel1D_v2(I, r):
     bsize, a, r = I.get_shape().as_list()
     bsize = tf.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
     X = tf.split(1, a, I)  # a, [bsize, 1, r]
-    if 'axis' in tf.squeeze.func_code.co_varnames:
+    if 'axis' in tf.squeeze.__code__.co_varnames:
       X = tf.concat(1, [tf.squeeze(x, axis=1) for x in X])  # bsize, a*r
-    elif 'squeeze_dims' in tf.squeeze.func_code.co_varnames:
+    elif 'squeeze_dims' in tf.squeeze.__code__.co_varnames:
       X = tf.concat(1, [tf.squeeze(x, squeeze_dims=[1]) for x in X])  # bsize, a*r
     else:
       raise Exception('Unsupported version of tensorflow')
@@ -59,22 +59,22 @@ if __name__ == "__main__":
     Y = SubPixel1D(X, 2)
     y = sess.run(Y, feed_dict={X: x})
 
-    print 'single-channel:'
-    print 'original, element 0 (2 channels):', x[0,:,0], x[0,:,1]
-    print 'rescaled, element 1:', y[0,:,0]
-    print
-    print 'original, element 0 (2 channels) :', x[1,:,0], x[1,:,1]
-    print 'rescaled, element 1:', y[1,:,0]
-    print
+    print('single-channel:')
+    print('original, element 0 (2 channels):', x[0,:,0], x[0,:,1])
+    print('rescaled, element 1:', y[0,:,0])
+    print()
+    print('original, element 0 (2 channels) :', x[1,:,0], x[1,:,1])
+    print('rescaled, element 1:', y[1,:,0])
+    print()
 
     x = np.arange(2*4*4).reshape(2, 4, 4)
     X = tf.placeholder("float32", shape=(2, 4, 4), name="X")
     Y = SubPixel1D(X, 2)
     y = sess.run(Y, feed_dict={X: x})
 
-    print 'multichannel:'
-    print 'original, element 0 (4 channels):', x[0,:,0], x[0,:,1], x[0,:,2], x[0,:,3]
-    print 'rescaled, element 1:', y[0,:,0], y[0,:,1]
-    print
-    print 'original, element 0 (2 channels) :', x[1,:,0], x[1,:,1], x[1,:,2], x[1,:,3]
-    print 'rescaled, element 1:', y[1,:,0], y[1,:,1],
+    print('multichannel:')
+    print('original, element 0 (4 channels):', x[0,:,0], x[0,:,1], x[0,:,2], x[0,:,3])
+    print('rescaled, element 1:', y[0,:,0], y[0,:,1])
+    print()
+    print('original, element 0 (2 channels) :', x[1,:,0], x[1,:,1], x[1,:,2], x[1,:,3])
+    print('rescaled, element 1:', y[1,:,0], y[1,:,1], end=' ')
